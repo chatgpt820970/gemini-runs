@@ -1,10 +1,12 @@
 import os
 
-os.makedirs('output', exist_ok=True)
+output_dir = os.path.join(os.path.dirname(__file__), "output")
+os.makedirs(output_dir, exist_ok=True)
 
-with open('output/result.txt', 'w') as f:
+output_file = os.path.join(output_dir, "result.txt")
+
+with open(output_file, "w") as f:
     for i in range(1, 11):
-        square = i ** 2
-        text = f"{i}^2 = {square}"
-        print(text)
-        f.write(text + "\n")
+        line = f"{i}^2 = {i**2}"
+        print(line)
+        f.write(line + "\n")

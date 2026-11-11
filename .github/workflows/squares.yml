@@ -5,9 +5,6 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: tasks/squares
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,9 +12,9 @@ jobs:
           python-version: '3.12'
       - name: Run
         run: |
-          mkdir -p output
+          mkdir -p tasks/squares/output
           set -o pipefail
-          python main.py 2>&1 | tee output/log.txt
+          python tasks/squares/main.py 2>&1 | tee tasks/squares/output/log.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -28,4 +25,4 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: bash ../../.github/scripts/tg_send.sh output
+        run: bash .github/scripts/tg_send.sh tasks/squares/output
