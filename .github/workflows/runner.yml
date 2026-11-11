@@ -1,0 +1,52 @@
+name: runner
+run-name: runner
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: "task id"
+        required: true
+      task_input:
+        description: "runtime input"
+        required: false
+        default: ""
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Mask inputs
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          inputs = json.load(open(os.environ["GITHUB_EVENT_PATH"])).get("inputs") or {}
+          for v in inputs.values():
+              for line in str(v or "").splitlines():
+                  if line.strip():
+                      print("::add-mask::" + line)
+          EOF
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.CODE_REPO }}
+          token: ${{ secrets.CODE_REPO_TOKEN }}
+          path: code
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run task
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN: ${{ secrets.CODE_REPO_TOKEN }}
+          CODE_REPO: ${{ secrets.CODE_REPO }}
+        run: bash .github/scripts/run_task.sh
+      - name: Cleanup
+        if: always()
+        run: rm -rf code

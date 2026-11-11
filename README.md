@@ -1,2 +1,3 @@
-# gemini-runs
-Created by Telegram Gemini agent
+# runner
+
+Generic private-task runner. Nothing to see here.
