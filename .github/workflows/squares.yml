@@ -8,22 +8,18 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
       - name: Run
-        working-directory: tasks/squares_1_10
         run: |
+          cd tasks/squares_1_10
           mkdir -p output
-          set -o pipefail
-          python main.py 2>&1 | tee output/log.txt
+          python3 main.py 2>&1 | tee output/log.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: output
           path: tasks/squares_1_10/output/
       - name: Send output to Telegram
-        if: success()
+        if: always()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
